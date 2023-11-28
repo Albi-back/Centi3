@@ -134,15 +134,6 @@ bool MouseAndKeys::IsPressed(unsigned short vkeyCode) const
 	return pressed;
 }
 
-void MouseAndKeys::Reset()
-{
-	ZeroMemory(mInBuffer, sizeof(mInBuffer));
-	ZeroMemory(mKeyBuffer, sizeof(mKeyBuffer));
-	mButtons[0] = mButtons[1] = mButtons[2] = false;
-	mMouseScreen = mMouseMove = DirectX::SimpleMath::Vector2(0, 0);
-}
-
-
 void MouseAndKeys::ProcessKeys(RAWINPUT* raw)
 {
 	//standard key code

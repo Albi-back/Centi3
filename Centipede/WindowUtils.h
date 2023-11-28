@@ -28,6 +28,10 @@ public:
 		assert(mpMyD3D == nullptr);
 		mpMyD3D = &d3d;
 	}
+	MyD3D& GetD3D() {
+		assert(mpMyD3D);
+		return *mpMyD3D;
+	}
 	//wrap your game in one function call if using basic functions
 	int Run(void(*pUpdate)(float), void(*pRender)(float));
 	//if you are using class member fucntions then try this instead
@@ -46,6 +50,7 @@ public:
 	int GetClientHeight() const {
 		return mWinData.clientHeight;
 	}
+	float GetAspectRatio();
 	void ChooseRes(int& w, int& h, int defaults[], int numPairs);
 
 private:

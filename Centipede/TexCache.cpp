@@ -14,7 +14,8 @@ void TexCache::Release()
 	mCache.clear();
 }
 
-ID3D11ShaderResourceView* TexCache::LoadTexture(ID3D11Device*pDevice, const std::string& fileName, const std::string& texName, bool appendPath)
+ID3D11ShaderResourceView* TexCache::LoadTexture(ID3D11Device*pDevice, const std::string& fileName, const std::string& texName, 
+										bool appendPath, const vector<RECTF> *frames)
 {
 	string name = texName;;
 	if (name.empty())
@@ -47,7 +48,7 @@ ID3D11ShaderResourceView* TexCache::LoadTexture(ID3D11Device*pDevice, const std:
 	}
 	//save it
 	assert(pT);
-	mCache.insert(MyMap::value_type(name,Data(fileName, pT, GetDimensions(pT))));
+	mCache.insert(MyMap::value_type(name,Data(fileName, pT, GetDimensions(pT), frames)));
 	return pT;
 }
 

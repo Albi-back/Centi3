@@ -70,8 +70,13 @@ public:
 		Reset();
 
 	}
-	//zero and forget everything so we can start again
-	void Reset();
+	void Reset()
+	{
+		ZeroMemory(mInBuffer, sizeof(mInBuffer));
+		ZeroMemory(mKeyBuffer, sizeof(mKeyBuffer));
+		mButtons[0] = mButtons[1] = mButtons[2] = false;
+		mMouseScreen = mMouseMove = DirectX::SimpleMath::Vector2(0, 0);
+	}
 	//start up the mouse/keys system, call once only
 	//hwnd - main windows handle
 	//showMouse - hide the mouse cursor

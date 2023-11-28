@@ -48,7 +48,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 //main entry point for the game
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
-				   PSTR cmdLine, int showCmd)
+	PSTR cmdLine, int showCmd)
 {
 
 	int w(512), h(1024);
@@ -58,17 +58,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		assert(false);
 
 	MyD3D d3d;
-	if (!d3d.InitDirect3D(OnResize))
+	if (!d3d.InitDirect3D())
 		assert(false);
 	WinUtil::Get().SetD3D(d3d);
 	d3d.GetCache().SetAssetPath("data/");
+
 	Game game(d3d);
 
 	bool canUpdateRender;
 	float dTime = 0;
 	while (WinUtil::Get().BeginLoop(canUpdateRender))
 	{
-		if (canUpdateRender && dTime>0)
+		if (canUpdateRender && dTime > 0)
 		{
 			game.Update(dTime);
 			game.Render(dTime);
@@ -77,7 +78,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	}
 
 	game.Release();
-	d3d.ReleaseD3D(true);	
+	d3d.ReleaseD3D(true);
 	return 0;
 }
 

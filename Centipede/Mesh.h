@@ -6,6 +6,11 @@
 
 #include "ShaderTypes.h"
 
+//assimp
+struct aiScene;
+struct aiMesh;
+
+class MyD3D;
 
 /*
 Part of a vertex/index buffer that uses the same
@@ -18,6 +23,8 @@ public:
 		Release();
 	}
 	void Release();
+	bool Initialise(MyD3D& d3d, const aiScene* scene, const aiMesh* mesh);
+
 
 	//buffer data
 	ID3D11Buffer* mpVB = nullptr;
@@ -25,7 +32,7 @@ public:
 	int mNumIndices = 0;
 	int mNumVerts = 0;
 
-	Material material;	//the material describes how the surface reacts to light
+	Material material;
 };
 
 /*
@@ -43,18 +50,9 @@ public:
 		Release(); 
 	}
 	void Release();
-	/*
-	* configure the geometry inside a mesh
-	* verts - IN an array of local space vertex data
-	* numVerts - IN how many
-	* indices - IN an array of vertex indices that define triangles
-	* numIndices - IN how many
-	* mat - IN a material definining how this geometry reflects light
-	*/
 	void CreateFrom(const VertexPosNormTex verts[], int numVerts, const unsigned int indices[],
 		int numIndices, const Material& mat, int meshStartIndex, int meshNumIndices);
-
-	//getters
+	void CreateFrom(const std::string& fileName, MyD3D& d3d);
 	int GetNumSubMeshes() const {
 		return (int)mSubMeshes.size();
 	}
@@ -62,15 +60,14 @@ public:
 		return *mSubMeshes.at(idx);
 	}
 
-	//give the mesh a name so we can look it up in the library
+	
 	std::string mName;
 
 
 private:
 	Mesh(const Mesh& m) = delete;
 	Mesh& operator=(const Mesh& m) = delete;
-	//a mesh can contain multiple surfaces (geometry), each surface having 
-	//potentially different material properties
+
 	std::vector<SubMesh*> mSubMeshes;
 };
 
@@ -86,13 +83,9 @@ public:
 		Release(); 
 	}
 	void Release();
-	//look up a mesh by name
 	Mesh& GetMesh(const std::string& name);
-	//create a new mesh in the library with the given name
 	Mesh& CreateMesh(const std::string& name);
 
-	//array of meshes - a clever array where you can look things up with a key
-	//and in this case the key is a string
 	typedef std::unordered_map<std::string, Mesh*> Meshes;
 	Meshes mMeshes;
 };

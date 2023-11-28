@@ -2,13 +2,39 @@
 #include "SpriteBatch.h"
 #include "D3D.h"
 
-//handy rectangle definer
-struct RECTF
-{
-	float left, top, right, bottom;
-	operator RECT() {
-		return RECT{ (int)left,(int)top,(int)right,(int)bottom };
+
+class Sprite;
+
+/*
+Animate by flicking through a series of sub-rectangle in an texture atlas
+*/
+class Animate {
+private:
+	int mStart = 0, mStop = 0, mCurrent = 0; //start, stop and current frame of animation
+	float mRateSec = 0;		//how fast to play back
+	float mElapsedSec = 0;	//how long the current frame has been on screen
+	bool mLoop = false;		//loop at the end ?
+	bool mPlay = false;		//should we be playing right now
+	Sprite& mSpr;			//the parent sprite
+
+public:
+	Animate(Sprite& spr)
+		:mSpr(spr)
+	{}
+	/*
+	start	- frameID starting at zero
+	stop	- final frameID
+	rate	- playback speed
+	loop	- loop at the end?
+	*/
+	void Init(int _start, int _stop, float _rate, bool _loop);
+	//choose the frame
+	void Update(float _elapsedSec);
+	//start and stop
+	void Play(bool go) {
+		mPlay = go;
 	}
+	Animate& operator=(const Animate& rhs);
 };
 
 /*
@@ -22,6 +48,7 @@ private:
 	RECTF mTexRect;
 	DirectX::SimpleMath::Vector2 scale;
 	const TexCache::Data *mpTexData;
+	Animate mAnim;
 
 public:
 	DirectX::SimpleMath::Vector2 mPos;
@@ -34,11 +61,11 @@ public:
 	Sprite(MyD3D& d3d)
 		:mPos(0, 0), mVel(0, 0),
 		depth(0), mTexRect{ 0,0,0,0 }, colour(1, 1, 1, 1),
-		rotation(0), scale(2.f, 4.5f), origin(0, 0), mpTex(nullptr),
-		mD3D(d3d), mpTexData(nullptr)
+		rotation(0), scale(1, 1), origin(0, 0), mpTex(nullptr),
+		mD3D(d3d), mAnim(*this)
 	{}
 	Sprite(const Sprite& rhs)
-		:mD3D(rhs.mD3D)
+		:mD3D(rhs.mD3D), mAnim(*this)
 	{
 		(*this) = rhs;
 	}
@@ -51,6 +78,13 @@ public:
 	//change which part later
 	void SetTexRect(const RECTF& texRect);
 	void Scroll(float x, float y);
+
+	void SetFrame(int id);
+	Animate& GetAnim() {
+		return mAnim;
+	}
+
+
 	//getters
 	const TexCache::Data& GetTexData() const {
 		assert(mpTexData);

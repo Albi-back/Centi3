@@ -26,6 +26,15 @@ void WinUtil::GetClientExtents(int& width, int& height) const
 	height = mWinData.clientHeight;
 }
 
+float WinUtil::GetAspectRatio()
+{
+	int w, h;
+	GetClientExtents(w, h);
+	return (float)w / h;
+}
+
+
+
 LRESULT WinUtil::RealDefaultMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -205,13 +214,12 @@ bool WinUtil::BeginLoop(bool& canUpdateRender)
 	canUpdateRender = false;
 
 	// If there are Window messages then process them.
-	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+	while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 		if (msg.message == WM_QUIT)
 			return false;
-		return true;
 	}
 
 	if (!mWinData.appPaused)

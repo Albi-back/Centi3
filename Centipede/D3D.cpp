@@ -29,6 +29,15 @@ void MyD3D::EndRender()
 	HR(mpSwapChain->Present(0, 0));
 }
 
+void MyD3D::InitInputAssembler(ID3D11InputLayout* pInputLayout, ID3D11Buffer* pVBuffer, UINT szVertex, ID3D11Buffer* pIBuffer, D3D_PRIMITIVE_TOPOLOGY topology)
+{
+	UINT offset = 0;
+	assert(mpd3dImmediateContext);
+	mpd3dImmediateContext->IASetVertexBuffers(0, 1, &pVBuffer, &szVertex, &offset);
+	mpd3dImmediateContext->IASetInputLayout(pInputLayout);
+	mpd3dImmediateContext->IASetIndexBuffer(pIBuffer, DXGI_FORMAT_R32_UINT, 0);
+	mpd3dImmediateContext->IASetPrimitiveTopology(topology);
+}
 
 
 // Resize the swap chain and recreate the render target view.
@@ -250,10 +259,8 @@ void MyD3D::OnResize_Default(int clientWidth, int clientHeight)
 }
 
 
-bool MyD3D::InitDirect3D(void(*pOnResize)(int,int,MyD3D&))
+bool MyD3D::InitDirect3D()
 {
-	assert(pOnResize);
-	mpOnResize = pOnResize;
 
 	// Create the device and device context.
 	CreateD3D();
@@ -271,9 +278,11 @@ bool MyD3D::InitDirect3D(void(*pOnResize)(int,int,MyD3D&))
 	// also need to be executed every time the window is resized.  So
 	// just call the OnResize method here to avoid code duplication.
 
-	mpOnResize(w, h, *this);
+	OnResize(w, h, *this);
 
 	CreateWrapSampler(mpWrapSampler);
+
+	mFX.Init();
 
 	return true;
 }
@@ -281,6 +290,8 @@ bool MyD3D::InitDirect3D(void(*pOnResize)(int,int,MyD3D&))
 void MyD3D::ReleaseD3D(bool extraReporting)
 {
 	mTexCache.Release();
+	mFX.Release();
+	mMeshMgr.Release();
 	//check if full screen - not advisable to exit in full screen mode
 	if (mpSwapChain)
 	{
@@ -294,7 +305,7 @@ void MyD3D::ReleaseD3D(bool extraReporting)
 	ReleaseCOM(mpDepthStencilView);
 	ReleaseCOM(mpSwapChain);
 	ReleaseCOM(mpDepthStencilBuffer);
-
+	ReleaseCOM(mpWrapSampler);
 	// Restore all default settings.
 	if (mpd3dImmediateContext)
 	{
@@ -307,6 +318,7 @@ void MyD3D::ReleaseD3D(bool extraReporting)
 	{
 		ID3D11Debug* pd3dDebug;
 		HR(mpd3dDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&pd3dDebug)));
+		ReleaseCOM(mpd3dDevice);
 		HR(pd3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY));
 		ReleaseCOM(pd3dDebug);
 	}

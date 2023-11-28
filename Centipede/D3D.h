@@ -4,14 +4,16 @@
 #include <d3d11.h>
 #include "SimpleMath.h"
 #include "TexCache.h"
+#include "FX.h"
+#include "Mesh.h"
 
 
 class MyD3D
 {
 public:
-
+	MyD3D() : mFX(*this) {};
 	//main start up function
-	bool InitDirect3D(void(*pOnResize)(int, int, MyD3D&));
+	bool InitDirect3D();
 	//default minimum behaviour when ALT+ENTER or drag or resize
 	//parameters are new width and height of window
 	void OnResize_Default(int clientWidth, int clientHeight);
@@ -36,17 +38,28 @@ public:
 	}
 	//see mpOnResize
 	void OnResize(int sw, int sh, MyD3D& d3d) {
-		assert(mpOnResize);
-		mpOnResize(sw, sh, d3d);
+		if (mpOnResize)
+			mpOnResize(sw, sh, d3d);
+		else
+			OnResize_Default(sw, sh);
+	}
+	void SetOnResize(void(*pOnResize)(int, int, MyD3D&)) {
+		mpOnResize = pOnResize;
 	}
 	TexCache& GetCache() { return mTexCache; }
-	ID3D11SamplerState& GetWrapSampler()  {
+	MeshMgr& GetMeshMgr() { return mMeshMgr; }
+	FX::MyFX& GetFX() { return mFX; }
+	ID3D11SamplerState& GetWrapSampler() {
 		assert(mpWrapSampler);
 		return *mpWrapSampler;
 	}
+	void InitInputAssembler(ID3D11InputLayout* pInputLayout, ID3D11Buffer* pVBuffer, UINT szVertex, ID3D11Buffer* pIBuffer,
+		D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 private:
 	TexCache mTexCache;
+	MeshMgr mMeshMgr;
+	FX::MyFX mFX;
 	//what type of gpu have we got - hopefully a hardware one
 	D3D_DRIVER_TYPE md3dDriverType = D3D_DRIVER_TYPE_UNKNOWN;
 	//texture multisampling quality level supported
