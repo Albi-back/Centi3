@@ -37,7 +37,9 @@ public:
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	const DirectX::SimpleMath::Vector3 mDefCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
 	DirectX::SimpleMath::Vector3 mCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
-	Model mLogo;
+	
+	std::vector<Model> mModels;
+	enum Modelid { LOGO,LOGO2, TOTAL = 2 };
 private:
 	void InitMenu();
 	void InitLogo();
@@ -55,7 +57,6 @@ public:
 
 	State state = State::START;
 	Game(MyD3D& d3d);
-
 
 	void Release();
 	void Update(float dTime);

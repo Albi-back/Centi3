@@ -8,8 +8,17 @@ using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-
-
+void Setup(Model& m, Mesh& source, const Vector3& scale, const Vector3& pos, const Vector3& rot)
+{
+	m.Initialise(source);
+	m.GetScale() = scale;
+	m.GetPosition() = pos;
+	m.GetRotation() = rot;
+}
+void Setup(Model& m, Mesh& source, float scale, const Vector3& pos, const Vector3& rot)
+{
+	Setup(m, source, Vector3(scale, scale, scale), pos, rot);
+}
 Game::Game(MyD3D& d3d)
 	: mD3D(d3d), mpSB(nullptr), mSMode(d3d), mPMode(d3d)
 {
@@ -95,14 +104,14 @@ void StartScreen::Update(float dTime)
 void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
-
+	InitLogo();
 	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
 	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
 	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
 
-	d3d.BeginRender(Colours::Blue);
-	d3d.GetFX().Render(mLogo);
-
+	d3d.BeginRender(Colours::Black);
+	d3d.GetFX().Render(mModels[0]);
+	
 	d3d.EndRender();
 }
 
@@ -155,15 +164,27 @@ void PlayMode::InitPlayer()
 void StartScreen::InitLogo()
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
-	mLogo.Initialise(BuildQuad(d3d.GetMeshMgr()));
-	mLogo.GetRotation() = Vector3(0, 0, 0);
-	mLogo.GetScale() = Vector3(3, 1, 3);
-	mLogo.GetPosition() = Vector3(0, -1, 0);
-	//change the defatult material inside the mesh
-	Material& matQ = mLogo.GetMesh().GetSubMesh(0).material;
-	matQ.gfxData.Set(Vector4(1.f, 0.4f, 0.1f, 1), Vector4(0.1f, 1.0f, 0.1f, 1), Vector4(0.9f, 0.8f, 0.8f, 1));
-	matQ.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "floor.dds");
-	matQ.texture = "floor.dds";
+	//Mesh& cubeMesh = BuildCube(d3d.GetMeshMgr());
+	//Material mat = mModels[0].GetMesh().GetSubMesh(0).material;
+
+//mModels[Modelid::LOGO].Initialise(cubeMesh);
+//mat.flags &= ~Material::TFlags::TRANSPARENCY;
+//mModels[Modelid::LOGO].GetScale() = Vector3(0.5f, 0.5f, 0.5f);
+//mModels[Modelid::LOGO].GetPosition() = Vector3(1.5f, -0.45f, 1);
+//mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "logo.dds");
+//mat.texture = "logo";
+//mat.flags |= Material::TFlags::ALPHA_TRANSPARENCY;
+//mat.flags &= ~Material::TFlags::CCW_WINDING;	//render the back
+//mModels[Modelid::LOGO].SetOverrideMat(&mat);
+//
+//mModels[Modelid::LOGO2] = mModels[Modelid::LOGO];
+//mat.flags |= Material::TFlags::CCW_WINDING;	//render the front
+//mModels[Modelid::LOGO2].SetOverrideMat(&mat);
+	Mesh& cb = d3d.GetMeshMgr().CreateMesh("logo");
+	cb.CreateFrom("../bin/data/logo.fbx", d3d);
+	mModels.push_back(Model());
+	Setup(mModels[Modelid::LOGO], cb, 0.09f, Vector3(1, -0.f, -1.5f), Vector3(PI / 2.f, 0, 0));
+
 }
 void StartScreen::InitMenu()
 {
