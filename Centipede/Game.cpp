@@ -104,13 +104,13 @@ void StartScreen::Update(float dTime)
 void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
-	InitLogo();
+
 	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
 	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
 	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
-
+	InitLogo();
 	d3d.BeginRender(Colours::Black);
-	d3d.GetFX().Render(mModels[0]);
+	d3d.GetFX().Render(mModels[Modelid{LOGO}]);
 	
 	d3d.EndRender();
 }
@@ -164,7 +164,7 @@ void PlayMode::InitPlayer()
 void StartScreen::InitLogo()
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
-	//Mesh& cubeMesh = BuildCube(d3d.GetMeshMgr());
+	Mesh& logoMesh = BuildCube(d3d.GetMeshMgr());
 	//Material mat = mModels[0].GetMesh().GetSubMesh(0).material;
 
 //mModels[Modelid::LOGO].Initialise(cubeMesh);
@@ -181,10 +181,14 @@ void StartScreen::InitLogo()
 //mat.flags |= Material::TFlags::CCW_WINDING;	//render the front
 //mModels[Modelid::LOGO2].SetOverrideMat(&mat);
 	Mesh& cb = d3d.GetMeshMgr().CreateMesh("logo");
-	cb.CreateFrom("../bin/data/logo.fbx", d3d);
+	cb.CreateFrom("data/logo.fbx", d3d);
 	mModels.push_back(Model());
-	Setup(mModels[Modelid::LOGO], cb, 0.09f, Vector3(1, -0.f, -1.5f), Vector3(PI / 2.f, 0, 0));
+	Setup(mModels[Modelid{LOGO}], cb, 0.09f, Vector3(1, -0.f, -1.5f), Vector3(PI / 2.f, 0, 0));
 
+	
+	
+	
+	
 }
 void StartScreen::InitMenu()
 {

@@ -61,7 +61,7 @@ public:
 	Sprite(MyD3D& d3d)
 		:mPos(0, 0), mVel(0, 0),
 		depth(0), mTexRect{ 0,0,0,0 }, colour(1, 1, 1, 1),
-		rotation(0), scale(1, 1), origin(0, 0), mpTex(nullptr),
+		rotation(0), scale(2, 5), origin(0, 0), mpTex(nullptr),
 		mD3D(d3d), mAnim(*this)
 	{}
 	Sprite(const Sprite& rhs)

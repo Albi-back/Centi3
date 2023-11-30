@@ -39,7 +39,7 @@ public:
 	DirectX::SimpleMath::Vector3 mCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
 	
 	std::vector<Model> mModels;
-	enum Modelid { LOGO,LOGO2, TOTAL = 2 };
+	enum Modelid { LOGO, TOTAL = 1 };
 private:
 	void InitMenu();
 	void InitLogo();

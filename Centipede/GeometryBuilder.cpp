@@ -143,7 +143,7 @@ Mesh& BuildCube(MeshMgr& mgr)
 		20, 22, 23
 	};
 
-	Mesh &mesh = mgr.CreateMesh("box");
+	Mesh &mesh = mgr.CreateMesh("logo");
 	Material mat = Material::default;
 	mat.gfxData.Diffuse = Vector4(1, 1, 1, 1);
 	mat.gfxData.Ambient = Vector4(0.1f, 0.1f, 0.1f, 1);
