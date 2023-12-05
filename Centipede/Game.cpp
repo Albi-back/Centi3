@@ -112,14 +112,14 @@ void StartScreen::Update(float dTime)
 {
 	
 	
-	if (counter <= 90000)
+	if (mModels[Modelid::LOGO].GetRotation().x>-(PI*2))
 	{ 
 		spun = false;
-		gAngle += dTime * 0.5f;
+		gAngle += dTime * 2.f;
 		mModels[Modelid::LOGO].GetRotation().x = -gAngle;
 		
 	}
-	else if(counter >90000)
+	else
 	{
 		spun = true;
 	}
@@ -145,6 +145,9 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 	
 	if(!spun)
         d3d.GetFX().Render(mModels[Modelid{LOGO}]);
+	
+	else if (spun)
+		d3d.GetFX().Render(mModels[Modelid{TITLE}]);
 	
 	
 	
@@ -210,6 +213,11 @@ void StartScreen::Init()
 	cb.CreateFrom("data/logo.fbx", d3d);
 	mModels.push_back(Model());
 	Setup(mModels[Modelid{LOGO}], cb, 0.25f, Vector3(-0.65, -0.f, 0), Vector3(0, 0, 0));
+	
+	Mesh& TT = d3d.GetMeshMgr().CreateMesh("TITLE");
+	TT.CreateFrom("data/title.fbx", d3d);
+	mModels.push_back(Model());
+	Setup(mModels[Modelid{TITLE}], TT, 0.25f, Vector3(-0.5, 1.8f, 0), Vector3(0, 0, 0));
 }
 void StartScreen::InitMenu()
 {

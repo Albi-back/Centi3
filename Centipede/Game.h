@@ -41,7 +41,7 @@ public:
 	DirectX::SimpleMath::Vector3 mCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
 	float gAngle = 0;
 	std::vector<Model> mModels;
-	enum Modelid { LOGO, TOTAL = 1 };
+	enum Modelid { LOGO, TITLE, TOTAL = 2 };
 	void Init();
 private:
 	void InitMenu();
