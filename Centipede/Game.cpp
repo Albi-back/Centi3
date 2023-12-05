@@ -3,10 +3,14 @@
 #include "CommonStates.h"
 #include "GeometryBuilder.h"
 #include "D3D.h"
+#include "Timer.h"
+
 
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
+
+
 
 void Setup(Model& m, Mesh& source, const Vector3& scale, const Vector3& pos, const Vector3& rot)
 {
@@ -22,8 +26,9 @@ void Setup(Model& m, Mesh& source, float scale, const Vector3& pos, const Vector
 Game::Game(MyD3D& d3d)
 	: mD3D(d3d), mpSB(nullptr), mSMode(d3d), mPMode(d3d)
 {
-
+	BuildCube(d3d.GetMeshMgr());
 	mpSB = new SpriteBatch(&mD3D.GetDeviceCtx());
+	mSMode.Init();
 }
 
 
@@ -40,6 +45,9 @@ void Game::Update(float dTime)
 
 	switch (state)
 	{
+	case State::START:
+		mSMode.Update(dTime);
+		break;
 	case State::PLAY:
 		mPMode.Update(dTime);
 	}
@@ -59,8 +67,10 @@ void Game::Render(float dTime)
 
 	case State::START:
 		mSMode.Render(dTime, *mpSB);
+		break;
 	case State::PLAY:
 		mPMode.Render(dTime, *mpSB);
+		break;
 	}
 
 
@@ -95,10 +105,31 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 
 StartScreen::StartScreen(MyD3D& d3d)
 {
+	
 }
 
 void StartScreen::Update(float dTime)
 {
+	
+	
+	if (counter <= 90000)
+	{ 
+		spun = false;
+		gAngle += dTime * 0.5f;
+		mModels[Modelid::LOGO].GetRotation().x = -gAngle;
+		
+	}
+	else if(counter >90000)
+	{
+		spun = true;
+	}
+	
+	counter++;
+		
+
+		
+	
+
 }
 
 void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
@@ -108,11 +139,21 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
 	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
 	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
-	InitLogo();
-	d3d.BeginRender(Colours::Black);
-	d3d.GetFX().Render(mModels[Modelid{LOGO}]);
+	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(0.47f, 0.47f, 0.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
+
+	//d3d.BeginRender(Colours::Black);
 	
-	d3d.EndRender();
+	if(!spun)
+        d3d.GetFX().Render(mModels[Modelid{LOGO}]);
+	
+	
+	
+	//Model cube;
+	//cube.Initialise(d3d.GetMeshMgr().GetMesh("Cube"));
+	//d3d.GetFX().Render(cube);
+	//cube.GetRotation() = Vector3(2, 4, 7);
+	//cube.GetPosition() = Vector3(0, 0, 10);
+	//d3d.EndRender();
 }
 
 
@@ -161,34 +202,14 @@ void PlayMode::InitPlayer()
 	mPlayArea.bottom = h * 0.75f;
 	mPlayer.mPos = Vector2(mPlayArea.left + mPlayer.GetScreenSize().x * 2.f, (mPlayArea.bottom - mPlayArea.top) * 1.3f);
 }
-void StartScreen::InitLogo()
+void StartScreen::Init()
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
-	Mesh& logoMesh = BuildCube(d3d.GetMeshMgr());
-	//Material mat = mModels[0].GetMesh().GetSubMesh(0).material;
-
-//mModels[Modelid::LOGO].Initialise(cubeMesh);
-//mat.flags &= ~Material::TFlags::TRANSPARENCY;
-//mModels[Modelid::LOGO].GetScale() = Vector3(0.5f, 0.5f, 0.5f);
-//mModels[Modelid::LOGO].GetPosition() = Vector3(1.5f, -0.45f, 1);
-//mat.pTextureRV = d3d.GetCache().LoadTexture(&d3d.GetDevice(), "logo.dds");
-//mat.texture = "logo";
-//mat.flags |= Material::TFlags::ALPHA_TRANSPARENCY;
-//mat.flags &= ~Material::TFlags::CCW_WINDING;	//render the back
-//mModels[Modelid::LOGO].SetOverrideMat(&mat);
-//
-//mModels[Modelid::LOGO2] = mModels[Modelid::LOGO];
-//mat.flags |= Material::TFlags::CCW_WINDING;	//render the front
-//mModels[Modelid::LOGO2].SetOverrideMat(&mat);
+	Mesh& logoMesh = d3d.GetMeshMgr().GetMesh("Cube");
 	Mesh& cb = d3d.GetMeshMgr().CreateMesh("logo");
 	cb.CreateFrom("data/logo.fbx", d3d);
 	mModels.push_back(Model());
-	Setup(mModels[Modelid{LOGO}], cb, 0.09f, Vector3(1, -0.f, -1.5f), Vector3(PI / 2.f, 0, 0));
-
-	
-	
-	
-	
+	Setup(mModels[Modelid{LOGO}], cb, 0.25f, Vector3(-0.65, -0.f, 0), Vector3(0, 0, 0));
 }
 void StartScreen::InitMenu()
 {

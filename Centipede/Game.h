@@ -6,6 +6,7 @@
 #include "SpriteBatch.h"
 #include "Sprite.h"
 #include "Model.h"
+#include "Timer.h"
 
 
 class PlayMode
@@ -32,17 +33,19 @@ class StartScreen
 {
 public:
 	StartScreen(MyD3D& d3d);
-
+	int counter = 0;
+	bool spun = false;
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	const DirectX::SimpleMath::Vector3 mDefCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
 	DirectX::SimpleMath::Vector3 mCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
-	
+	float gAngle = 0;
 	std::vector<Model> mModels;
 	enum Modelid { LOGO, TOTAL = 1 };
+	void Init();
 private:
 	void InitMenu();
-	void InitLogo();
+	
 
 };
 
@@ -57,7 +60,7 @@ public:
 
 	State state = State::START;
 	Game(MyD3D& d3d);
-
+	
 	void Release();
 	void Update(float dTime);
 	void Render(float dTime);
