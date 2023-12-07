@@ -30,16 +30,9 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	//do something game specific here
 	switch (msg)
 	{
-		// Respond to a keyboard event.
 	case WM_CHAR:
-		switch (wParam)
-		{
-		case 27:
-		case 'q':
-		case 'Q':
-			PostQuitMessage(0);
-			break;
-		}
+	case WM_INPUT:
+		return Game::Get().WindowsMssgHandler(hwnd, msg, wParam, lParam);
 	}
 
 	//default message handling (resize window, full screen, etc)

@@ -7,6 +7,8 @@
 #include "Sprite.h"
 #include "Model.h"
 #include "Timer.h"
+#include "Input.h"
+#include "Singleton.h"
 
 
 class PlayMode
@@ -15,7 +17,9 @@ public:
 	PlayMode(MyD3D& d3d);
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
-
+	float getRadius();
+	void movement(float dtime);
+	
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 4;
@@ -41,7 +45,8 @@ public:
 	DirectX::SimpleMath::Vector3 mCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
 	float gAngle = 0;
 	std::vector<Model> mModels;
-	enum Modelid { LOGO, TITLE, TOTAL = 2 };
+	void initMouse();
+	enum Modelid { LOGO, TITLE,START,EXIT, TOTAL = 4 };
 	void Init();
 private:
 	void InitMenu();
@@ -53,15 +58,16 @@ private:
 /*
 Basic wrapper for a game
 */
-class Game
+class Game : public Singleton<Game>
 {
 public:
 	enum class State { START, PLAY };
-
+	static MouseAndKeys input;
 	State state = State::START;
 	Game(MyD3D& d3d);
 	
 	void Release();
+	LRESULT Game::WindowsMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void Update(float dTime);
 	void Render(float dTime);
 private:

@@ -6,11 +6,13 @@
 #include "Timer.h"
 
 
+
+
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-
+MouseAndKeys Game::input;
 
 void Setup(Model& m, Mesh& source, const Vector3& scale, const Vector3& pos, const Vector3& rot)
 {
@@ -37,6 +39,29 @@ void Game::Release()
 {
 	delete mpSB;
 	mpSB = nullptr;
+}
+
+LRESULT Game::WindowsMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_INPUT:
+		input.MessageEvent((HRAWINPUT)lParam);
+	case WM_CHAR:
+		switch (wParam)
+		{
+		case 'e':
+		case 'E':
+			state = State::PLAY;
+			return 0;
+		case 'q':
+		case 'Q':
+			PostQuitMessage(0);
+			return 0;
+		}
+	}
+
+	return WinUtil::Get().DefaultMssgHandler(hwnd, msg, wParam, lParam);
 }
 
 //called over and over, use it to update game logic
@@ -90,9 +115,34 @@ PlayMode::PlayMode(MyD3D& d3d)
 
 void PlayMode::Update(float dTime)
 {
+
 	int i = 0;
+	if (Game::input.GetMousePos(ABSOLUTE).x > mPlayer.mPos.x)/* && mPlayer.mPos.x <= WinUtil::Get().GetClientWidth() - getRadius()*/    //Makes the ship not leave the screen
+	{
+		mPlayer.mPos.x -= 10 * dTime;
+	}
+	if (Game::input.GetMousePos(ABSOLUTE).x < mPlayer.mPos.x) /* && mPlayer.mPos.x >= getRadius()*/ //Makes the ship not leave the screen
+	{
+		mPlayer.mPos.x += 10 * dTime;
+	}
 	for (auto& s : mBgnd)
+	{
 		s.Scroll(-0, dTime * (i++) * SCROLL_SPEED);
+
+	}
+		
+	//bool keyPressed = Game::input.IsPressed(VK_RIGHT) || Game::input.IsPressed(VK_LEFT);
+		//Moves the ship left and right
+	
+	
+	
+
+		//Makes shipSpr.mPos = to Vector2 pos
+		
+	
+}
+void PlayMode::movement(float dTime)
+{
 }
 RECTF rect;
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
@@ -101,6 +151,12 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 	for (auto& s : mBgnd)
 		s.Draw(batch);
 	mPlayer.Draw(batch);
+}
+
+float PlayMode::getRadius()
+{
+	return mPlayer.GetScale().x * (mPlayer.GetTexData().dim.x / 2);
+	//Return radius;
 }
 
 StartScreen::StartScreen(MyD3D& d3d)
@@ -125,7 +181,9 @@ void StartScreen::Update(float dTime)
 	}
 	
 	counter++;
-		
+	
+	
+
 
 		
 	
@@ -147,7 +205,15 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
         d3d.GetFX().Render(mModels[Modelid{LOGO}]);
 	
 	else if (spun)
-		d3d.GetFX().Render(mModels[Modelid{TITLE}]);
+	{		
+        d3d.GetFX().Render(mModels[Modelid{TITLE}]);
+		d3d.GetFX().Render(mModels[Modelid{START}]);
+		d3d.GetFX().Render(mModels[Modelid{EXIT}]);
+	}
+	
+	
+		
+
 	
 	
 	
@@ -218,11 +284,22 @@ void StartScreen::Init()
 	TT.CreateFrom("data/title.fbx", d3d);
 	mModels.push_back(Model());
 	Setup(mModels[Modelid{TITLE}], TT, 0.25f, Vector3(-0.5, 1.8f, 0), Vector3(0, 0, 0));
+
+	Mesh& sT = d3d.GetMeshMgr().CreateMesh("start");
+	sT.CreateFrom("data/Start.fbx", d3d);
+	mModels.push_back(Model());
+	Setup(mModels[Modelid{START}], sT, 0.25f, Vector3(-0.45, 0.5, 0), Vector3(0, 0, 0));
+	Mesh& ET = d3d.GetMeshMgr().CreateMesh("exit");
+	ET.CreateFrom("data/exit.fbx", d3d);
+	mModels.push_back(Model());
+	Setup(mModels[Modelid{EXIT}], ET, 0.25f, Vector3(-0.45, -0.5, 0), Vector3(0, 0, 0));
 }
+
 void StartScreen::InitMenu()
 {
 
 }
+
 
 
 
