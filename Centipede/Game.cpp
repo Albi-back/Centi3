@@ -4,15 +4,14 @@
 #include "GeometryBuilder.h"
 #include "D3D.h"
 #include "Timer.h"
-
+#include "Input.h"
+#include "WindowUtils.h"
 
 
 
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
-
-MouseAndKeys Game::input;
 
 void Setup(Model& m, Mesh& source, const Vector3& scale, const Vector3& pos, const Vector3& rot)
 {
@@ -26,11 +25,14 @@ void Setup(Model& m, Mesh& source, float scale, const Vector3& pos, const Vector
 	Setup(m, source, Vector3(scale, scale, scale), pos, rot);
 }
 Game::Game(MyD3D& d3d)
-	: mD3D(d3d), mpSB(nullptr), mSMode(d3d), mPMode(d3d)
+	: mD3D(d3d), mpSB(nullptr), mSMode(d3d), mPMode(d3d), mGMode(d3d)
 {
 	BuildCube(d3d.GetMeshMgr());
 	mpSB = new SpriteBatch(&mD3D.GetDeviceCtx());
 	mSMode.Init();
+	
+	input.Initialise(WinUtil::Get().GetMainWnd(), true, true);
+	mGMode.Init();
 }
 
 
@@ -47,6 +49,7 @@ LRESULT Game::WindowsMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_INPUT:
 		input.MessageEvent((HRAWINPUT)lParam);
+		break;
 	case WM_CHAR:
 		switch (wParam)
 		{
@@ -54,11 +57,17 @@ LRESULT Game::WindowsMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 		case 'E':
 			state = State::PLAY;
 			return 0;
+
 		case 'q':
 		case 'Q':
 			PostQuitMessage(0);
 			return 0;
+		case 'm':
+		case 'M':
+			state = State::GAME_OVER;
+			return 0;
 		}
+		break;
 	}
 
 	return WinUtil::Get().DefaultMssgHandler(hwnd, msg, wParam, lParam);
@@ -75,6 +84,10 @@ void Game::Update(float dTime)
 		break;
 	case State::PLAY:
 		mPMode.Update(dTime);
+		break;
+	case State::GAME_OVER:
+		mPMode.Update(dTime);
+		break;
 	}
 }
 
@@ -96,12 +109,16 @@ void Game::Render(float dTime)
 	case State::PLAY:
 		mPMode.Render(dTime, *mpSB);
 		break;
+	case State::GAME_OVER:
+		mGMode.Render(dTime, *mpSB);
+		break;
 	}
 
 
 	mpSB->End();
 
 	mD3D.EndRender();
+	input.PostProcess();
 }
 
 
@@ -115,16 +132,25 @@ PlayMode::PlayMode(MyD3D& d3d)
 
 void PlayMode::Update(float dTime)
 {
+	Vector2 mousePos = Game::Get().input.GetMousePos(true);
+
+
+
+	if (mousePos.x > (WinUtil::Get().GetClientWidth() - getRadius()))   //Makes the ship not leave the screen
+	{
+		mPlayer.mPos.x = WinUtil::Get().GetClientWidth() - getRadius();
+	}
+	else if (mousePos.x < getRadius()) //Makes the ship not leave the screen
+	{
+		mPlayer.mPos.x = getRadius();
+	}
+	else
+	{
+		mPlayer.mPos.x = mousePos.x;
+	}
+
 
 	int i = 0;
-	if (Game::input.GetMousePos(ABSOLUTE).x > mPlayer.mPos.x)/* && mPlayer.mPos.x <= WinUtil::Get().GetClientWidth() - getRadius()*/    //Makes the ship not leave the screen
-	{
-		mPlayer.mPos.x -= 10 * dTime;
-	}
-	if (Game::input.GetMousePos(ABSOLUTE).x < mPlayer.mPos.x) /* && mPlayer.mPos.x >= getRadius()*/ //Makes the ship not leave the screen
-	{
-		mPlayer.mPos.x += 10 * dTime;
-	}
 	for (auto& s : mBgnd)
 	{
 		s.Scroll(-0, dTime * (i++) * SCROLL_SPEED);
@@ -141,9 +167,7 @@ void PlayMode::Update(float dTime)
 		
 	
 }
-void PlayMode::movement(float dTime)
-{
-}
+
 RECTF rect;
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 {
@@ -168,11 +192,11 @@ void StartScreen::Update(float dTime)
 {
 	
 	
-	if (mModels[Modelid::LOGO].GetRotation().x>-(PI*2))
+	if (Game::Get().mModels[Game::Modelid::LOGO].GetRotation().x>-(PI * 2))
 	{ 
 		spun = false;
 		gAngle += dTime * 2.f;
-		mModels[Modelid::LOGO].GetRotation().x = -gAngle;
+		Game::Get().mModels[Game::Modelid::LOGO].GetRotation().x = -gAngle;
 		
 	}
 	else
@@ -189,7 +213,14 @@ void StartScreen::Update(float dTime)
 	
 
 }
-
+GameOver::GameOver(MyD3D& d3d)
+{
+}
+void GameOver::Update(float dTime)
+{
+	gAngle += dTime * 2.f;
+	Game::Get().mModels[Game::Modelid::OVER].GetRotation().x = -gAngle;
+}
 void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
@@ -202,13 +233,13 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 	//d3d.BeginRender(Colours::Black);
 	
 	if(!spun)
-        d3d.GetFX().Render(mModels[Modelid{LOGO}]);
+        d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::LOGO]);
 	
 	else if (spun)
 	{		
-        d3d.GetFX().Render(mModels[Modelid{TITLE}]);
-		d3d.GetFX().Render(mModels[Modelid{START}]);
-		d3d.GetFX().Render(mModels[Modelid{EXIT}]);
+        d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::TITLE]);
+		d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::START]);
+		d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::EXIT]);
 	}
 	
 	
@@ -217,15 +248,22 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 	
 	
 	
-	//Model cube;
-	//cube.Initialise(d3d.GetMeshMgr().GetMesh("Cube"));
-	//d3d.GetFX().Render(cube);
-	//cube.GetRotation() = Vector3(2, 4, 7);
-	//cube.GetPosition() = Vector3(0, 0, 10);
-	//d3d.EndRender();
+	
 }
 
+void GameOver::Render(float dTime, DirectX::SpriteBatch& batch)
+{
+	MyD3D& d3d = WinUtil::Get().GetD3D();
+	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
+	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
+	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
+	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(0.47f, 0.47f, 0.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
 
+	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::OVER]);
+	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::START]);
+	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::EXIT]);
+
+}
 
 void PlayMode::InitBgnd()
 {
@@ -277,26 +315,33 @@ void StartScreen::Init()
 	Mesh& logoMesh = d3d.GetMeshMgr().GetMesh("Cube");
 	Mesh& cb = d3d.GetMeshMgr().CreateMesh("logo");
 	cb.CreateFrom("data/logo.fbx", d3d);
-	mModels.push_back(Model());
-	Setup(mModels[Modelid{LOGO}], cb, 0.25f, Vector3(-0.65, -0.f, 0), Vector3(0, 0, 0));
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::LOGO], cb, 0.25f, Vector3(-0.65, -0.f, 0), Vector3(0, 0, 0));
 	
 	Mesh& TT = d3d.GetMeshMgr().CreateMesh("TITLE");
 	TT.CreateFrom("data/title.fbx", d3d);
-	mModels.push_back(Model());
-	Setup(mModels[Modelid{TITLE}], TT, 0.25f, Vector3(-0.5, 1.8f, 0), Vector3(0, 0, 0));
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::TITLE], TT, 0.25f, Vector3(-0.5, 1.8f, 0), Vector3(0, 0, 0));
 
 	Mesh& sT = d3d.GetMeshMgr().CreateMesh("start");
 	sT.CreateFrom("data/Start.fbx", d3d);
-	mModels.push_back(Model());
-	Setup(mModels[Modelid{START}], sT, 0.25f, Vector3(-0.45, 0.5, 0), Vector3(0, 0, 0));
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::START], sT, 0.25f, Vector3(-0.45, 0.5, 0), Vector3(0, 0, 0));
+
 	Mesh& ET = d3d.GetMeshMgr().CreateMesh("exit");
 	ET.CreateFrom("data/exit.fbx", d3d);
-	mModels.push_back(Model());
-	Setup(mModels[Modelid{EXIT}], ET, 0.25f, Vector3(-0.45, -0.5, 0), Vector3(0, 0, 0));
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::EXIT], ET, 0.25f, Vector3(-0.45, -0.5, 0), Vector3(0, 0, 0));
 }
 
-void StartScreen::InitMenu()
+void GameOver::Init()
 {
+	MyD3D& d3d = WinUtil::Get().GetD3D();
+	
+	Mesh& cb = d3d.GetMeshMgr().CreateMesh("gameover");
+	cb.CreateFrom("data/centipede.fbx", d3d);
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::OVER], cb, 0.25f, Vector3(-0, 0, 0), Vector3(0, 0,0));
 
 }
 
