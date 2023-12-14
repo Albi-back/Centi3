@@ -148,7 +148,7 @@ void PlayMode::Update(float dTime)
 	{
 		mPlayer.mPos.x = mousePos.x;
 	}
-
+	if ()
 
 	int i = 0;
 	for (auto& s : mBgnd)
@@ -309,6 +309,19 @@ void PlayMode::InitPlayer()
 	mPlayArea.bottom = h * 0.75f;
 	mPlayer.mPos = Vector2(mPlayArea.left + mPlayer.GetScreenSize().x * 2.f, (mPlayArea.bottom - mPlayArea.top) * 1.3f);
 }
+void PlayMode::InitBullet()
+{
+	ID3D11ShaderResourceView* b = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "bullet.dds");
+	mPlayer.SetTex(*b);
+	mPlayer.SetScale(Vector2(3.f, 3.f));
+	int w, h;
+	WinUtil::Get().GetClientExtents(w, h);
+	mPlayArea.left = mPlayer.GetScreenSize().x * 0.6f;
+	mPlayArea.top = mPlayer.GetScreenSize().y * 0.6f;
+	mPlayArea.right = w - mPlayArea.left;
+	mPlayArea.bottom = h * 0.75f;
+	mPlayer.mPos = Vector2(mPlayArea.left + mPlayer.GetScreenSize().x * 2.f, (mPlayArea.bottom - mPlayArea.top) * 1.3f);
+}
 void StartScreen::Init()
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();
@@ -339,7 +352,7 @@ void GameOver::Init()
 	MyD3D& d3d = WinUtil::Get().GetD3D();
 	
 	Mesh& cb = d3d.GetMeshMgr().CreateMesh("gameover");
-	cb.CreateFrom("data/centipede.fbx", d3d);
+	cb.CreateFrom("data/kerm.fbx", d3d);
 	Game::Get().mModels.push_back(Model());
 	Setup(Game::Get().mModels[Game::Modelid::OVER], cb, 0.25f, Vector3(-0, 0, 0), Vector3(0, 0,0));
 

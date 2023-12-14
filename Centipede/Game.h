@@ -11,27 +11,6 @@
 #include "Singleton.h"
 
 
-class PlayMode
-{
-public:
-	PlayMode(MyD3D& d3d);
-	void Update(float dTime);
-	void Render(float dTime, DirectX::SpriteBatch& batch);
-	float getRadius();
-	void movement(float dtime);
-	
-private:
-	const float SCROLL_SPEED = 10.f;
-	static const int BGND_LAYERS = 4;
-	MyD3D& mD3D;
-	Sprite mPlayer;
-	RECTF mPlayArea;
-	std::vector<Sprite> mBgnd; //paralax layers
-
-	void InitBgnd();
-	void InitPlayer();
-	void Render1(float dTime, DirectX::SpriteBatch& batch);
-};
 
 class StartScreen
 {
@@ -53,6 +32,28 @@ private:
 	
 
 };
+class PlayMode
+{
+public:
+	PlayMode(MyD3D& d3d);
+	void Update(float dTime);
+	void Render(float dTime, DirectX::SpriteBatch& batch);
+	float getRadius();
+	void movement(float dtime);
+	
+private:
+	const float SCROLL_SPEED = 10.f;
+	static const int BGND_LAYERS = 4;
+	MyD3D& mD3D;
+	Sprite mPlayer;
+	RECTF mPlayArea;
+	std::vector<Sprite> mBgnd; //paralax layers
+
+	void InitBgnd();
+	void InitPlayer();
+	void InitBullet();
+};
+
 class GameOver
 {
 public:
