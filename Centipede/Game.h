@@ -89,7 +89,7 @@ public:
 	void Update(float dTime);
 	void Render(float dTime);
 	std::vector<Model> mModels;
-	enum Modelid { LOGO, TITLE, START, EXIT, OVER, TOTAL = 5 };
+	enum Modelid { LOGO, TITLE, START, EXIT,TV, OVER, TOTAL = 6 };
 private:
 	MyD3D& mD3D;
 	DirectX::SpriteBatch* mpSB = nullptr;

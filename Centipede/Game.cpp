@@ -148,7 +148,7 @@ void PlayMode::Update(float dTime)
 	{
 		mPlayer.mPos.x = mousePos.x;
 	}
-	if ()
+	
 
 	int i = 0;
 	for (auto& s : mBgnd)
@@ -228,7 +228,7 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
 	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
 	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
 	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
-	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(0.47f, 0.47f, 0.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
+	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(1.47f, 1.47f, 1.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
 
 	//d3d.BeginRender(Colours::Black);
 	
@@ -240,6 +240,7 @@ void StartScreen::Render(float dTime, DirectX::SpriteBatch& batch)
         d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::TITLE]);
 		d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::START]);
 		d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::EXIT]);
+		d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::TV]);
 	}
 	
 	
@@ -262,6 +263,7 @@ void GameOver::Render(float dTime, DirectX::SpriteBatch& batch)
 	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::OVER]);
 	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::START]);
 	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::EXIT]);
+	
 
 }
 
@@ -334,17 +336,24 @@ void StartScreen::Init()
 	Mesh& TT = d3d.GetMeshMgr().CreateMesh("TITLE");
 	TT.CreateFrom("data/title.fbx", d3d);
 	Game::Get().mModels.push_back(Model());
-	Setup(Game::Get().mModels[Game::Modelid::TITLE], TT, 0.25f, Vector3(-0.5, 1.8f, 0), Vector3(0, 0, 0));
+	Setup(Game::Get().mModels[Game::Modelid::TITLE], TT, 0.25f, Vector3(-0.5, 1.8f, 0), Vector3(0.25, 0, 0));
 
 	Mesh& sT = d3d.GetMeshMgr().CreateMesh("start");
 	sT.CreateFrom("data/Start.fbx", d3d);
 	Game::Get().mModels.push_back(Model());
-	Setup(Game::Get().mModels[Game::Modelid::START], sT, 0.25f, Vector3(-0.45, 0.5, 0), Vector3(0, 0, 0));
+	Setup(Game::Get().mModels[Game::Modelid::START], sT, 0.25f, Vector3(-0.45, 0.5, 0), Vector3(0.25, 0, 0));
 
 	Mesh& ET = d3d.GetMeshMgr().CreateMesh("exit");
 	ET.CreateFrom("data/exit.fbx", d3d);
 	Game::Get().mModels.push_back(Model());
-	Setup(Game::Get().mModels[Game::Modelid::EXIT], ET, 0.25f, Vector3(-0.45, -0.5, 0), Vector3(0, 0, 0));
+	Setup(Game::Get().mModels[Game::Modelid::EXIT], ET, 0.25f, Vector3(-0.45, -0.5, 0), Vector3(0.25, 0, 0));
+
+	Mesh& dT = d3d.GetMeshMgr().CreateMesh("tv");
+	dT.CreateFrom("data/TV.fbx", d3d);
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::TV], dT, 1.25f, Vector3(0, -0.5, 1), Vector3(0, 90, 0));
+
+
 }
 
 void GameOver::Init()
@@ -352,7 +361,7 @@ void GameOver::Init()
 	MyD3D& d3d = WinUtil::Get().GetD3D();
 	
 	Mesh& cb = d3d.GetMeshMgr().CreateMesh("gameover");
-	cb.CreateFrom("data/kerm.fbx", d3d);
+	cb.CreateFrom("data/game_over.fbx", d3d);
 	Game::Get().mModels.push_back(Model());
 	Setup(Game::Get().mModels[Game::Modelid::OVER], cb, 0.25f, Vector3(-0, 0, 0), Vector3(0, 0,0));
 
