@@ -258,12 +258,12 @@ void GameOver::Render(float dTime, DirectX::SpriteBatch& batch)
 	d3d.GetFX().SetPerFrameConsts(d3d.GetDeviceCtx(), mCamPos);
 	CreateViewMatrix(d3d.GetFX().GetViewMatrix(), mCamPos, Vector3(0, 0, 0), Vector3(0, 1, 0));
 	CreateProjectionMatrix(d3d.GetFX().GetProjectionMatrix(), 0.25f * PI, WinUtil::Get().GetAspectRatio(), 1, 1000.f);
-	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(0.47f, 0.47f, 0.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
+	d3d.GetFX().SetupDirectionalLight(0, true, Vector3(-0.7f, -0.7f, 0.7f), Vector3(1.47f, 1.47f, 1.47f), Vector3(0.15f, 0.15f, 0.15f), Vector3(0.25f, 0.25f, 0.25f));
 
 	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::OVER]);
 	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::START]);
 	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::EXIT]);
-	
+	d3d.GetFX().Render(Game::Get().mModels[Game::Modelid::CART]);
 
 }
 
@@ -363,7 +363,12 @@ void GameOver::Init()
 	Mesh& cb = d3d.GetMeshMgr().CreateMesh("gameover");
 	cb.CreateFrom("data/game_over.fbx", d3d);
 	Game::Get().mModels.push_back(Model());
-	Setup(Game::Get().mModels[Game::Modelid::OVER], cb, 0.25f, Vector3(-0, 0, 0), Vector3(0, 0,0));
+	Setup(Game::Get().mModels[Game::Modelid::OVER], cb, 0.25f, Vector3(-0.5, 1, 0), Vector3(0, 0,0));
+
+	Mesh& sp = d3d.GetMeshMgr().CreateMesh("3dspc");
+	sp.CreateFrom("data/Space_invader.fbx", d3d);
+	Game::Get().mModels.push_back(Model());
+	Setup(Game::Get().mModels[Game::Modelid::CART], sp, 0.025f, Vector3(-0.5, -2, 2), Vector3(0, 90, 0));
 
 }
 
