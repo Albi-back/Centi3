@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "Input.h"
 #include "WindowUtils.h"
+#include <vector>
 
 
 
@@ -41,6 +42,7 @@ void Game::Release()
 {
 	delete mpSB;
 	mpSB = nullptr;
+	
 }
 
 LRESULT Game::WindowsMssgHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -123,14 +125,14 @@ void Game::Render(float dTime)
 
 
 PlayMode::PlayMode(MyD3D& d3d)
-	:mD3D(d3d), mPlayer(d3d),mBullet(d3d)
+	:mD3D(d3d), mPlayer(d3d), mBullet(d3d)
 {
 	InitBgnd();
 	InitPlayer();
 	InitBullet();
 }
-
-
+int f = 0;
+bool bullshot = false;
 void PlayMode::Update(float dTime)
 {
 	Vector2 mousePos = Game::Get().input.GetMousePos(true);
@@ -149,9 +151,18 @@ void PlayMode::Update(float dTime)
 	{
 		mPlayer.mPos.x = mousePos.x;
 	}
-	
-	
 
+	if (bullshot)
+	{
+		mBullets[f].mPos.y -= 500 * dTime;
+		f++;
+		
+		
+		
+	}
+		
+	
+		
 	int i = 0;
 	for (auto& s : mBgnd)
 	{
@@ -164,22 +175,25 @@ void PlayMode::Update(float dTime)
 }
 
 RECTF rect;
-bool bullshot= false;
+
 void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 {
 	
 	for (auto& s : mBgnd)
 		s.Draw(batch);
 	mPlayer.Draw(batch);
+	
 	if (Game::Get().input.GetMouseButton(MouseAndKeys::LBUTTON))
 	{
 		bullshot = true;
+		mBullets[f].mPos.x = mPlayer.mPos.x;
+		
 	}
 	if (bullshot)
 	{
-		PlayMode* shoots = new PlayMode(mD3D);
-		shoots->mBullet.Draw(batch);
-		shoots->mBullet.mPos.y +=  3* dTime;
+		
+		mBullets[f].Draw(batch);
+		
 		
 		
 	}
@@ -334,7 +348,12 @@ void PlayMode::InitBullet()
 	mPlayArea.right = w - mPlayArea.left;
 	mPlayArea.bottom = h * 0.75f;
 	mBullet.mPos = mPlayer.mPos;//Vector2(mPlayArea.left + mBullet.GetScreenSize().x * 2.f, (mPlayArea.bottom - mPlayArea.top) * 1.3f);
-	
+	mBullets.size() == 100;
+	for (int i = 0; i < 100;)
+	{
+		mBullets[i] = mBullet;
+		i++;
+	}
 }
 /*void PlayMode::InitBullet()
 {

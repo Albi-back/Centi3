@@ -36,23 +36,26 @@ class PlayMode
 {
 public:
 	PlayMode(MyD3D& d3d);
-	void Update(float dTime);
+	
+
+	void Update(float dt);
+		
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	float getRadius();
 	
-	int i;
+	
 	
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 4;
 	MyD3D& mD3D;
 	Sprite mPlayer;
-	
 	Sprite mBullet;
+	
 	RECTF mPlayArea;
 	std::vector<Sprite> mBgnd; //paralax layers
 	std::vector<Sprite> mBullets;
-
+	
 	void InitBgnd();
 	void InitPlayer();
 	void InitBullet();
