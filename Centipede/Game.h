@@ -39,15 +39,19 @@ public:
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	float getRadius();
-	void movement(float dtime);
+	
+	int i;
 	
 private:
 	const float SCROLL_SPEED = 10.f;
 	static const int BGND_LAYERS = 4;
 	MyD3D& mD3D;
 	Sprite mPlayer;
+	
+	Sprite mBullet;
 	RECTF mPlayArea;
 	std::vector<Sprite> mBgnd; //paralax layers
+	std::vector<Sprite> mBullets;
 
 	void InitBgnd();
 	void InitPlayer();
