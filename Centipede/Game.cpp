@@ -133,6 +133,7 @@ PlayMode::PlayMode(MyD3D& d3d)
 }
 int f = 0;
 bool bullshot = false;
+
 void PlayMode::Update(float dTime)
 {
 	Vector2 mousePos = Game::Get().input.GetMousePos(true);
@@ -151,17 +152,29 @@ void PlayMode::Update(float dTime)
 	{
 		mPlayer.mPos.x = mousePos.x;
 	}
-
-	if (bullshot)
+	
+	if (Game::Get().input.GetMouseButton(MouseAndKeys::LBUTTON))
 	{
-		mBullets[f].mPos.y -= 500 * dTime;
-		f++;
+		mBullets[f].mPos.x = mPlayer.mPos.x;
+		bullshot = true;
+		
+
+		if (mBullets[sprID::mbullet].mPos.y<0)
+		{
+			mBullets.push_back(mBullet);
+			bullshot = false;
+			mBullets[sprID::mbullet].mPos.y = mPlayer.mPos.y;
+			
+		}
 		
 		
 		
 	}
 		
-	
+	if (bullshot)
+	{
+		mBullets[sprID::mbullet].mPos.y -= 500 * dTime;
+	}
 		
 	int i = 0;
 	for (auto& s : mBgnd)
@@ -182,17 +195,11 @@ void PlayMode::Render(float dTime, DirectX::SpriteBatch& batch)
 	for (auto& s : mBgnd)
 		s.Draw(batch);
 	mPlayer.Draw(batch);
-	
-	if (Game::Get().input.GetMouseButton(MouseAndKeys::LBUTTON))
-	{
-		bullshot = true;
-		mBullets[f].mPos.x = mPlayer.mPos.x;
-		
-	}
+
 	if (bullshot)
 	{
-		
-		mBullets[f].Draw(batch);
+		mBullets[sprID::mbullet].mPos.x = mPlayer.mPos.x;
+		mBullets[sprID::mbullet].Draw(batch);
 		
 		
 		
@@ -335,6 +342,7 @@ void PlayMode::InitPlayer()
 }
 void PlayMode::InitBullet()
 {
+	
 	ID3D11ShaderResourceView* p = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "bullet.dds");
 	mBullet.SetTex(*p);
 	mBullet.SetScale(Vector2(2.f, 2.f));
@@ -348,26 +356,11 @@ void PlayMode::InitBullet()
 	mPlayArea.right = w - mPlayArea.left;
 	mPlayArea.bottom = h * 0.75f;
 	mBullet.mPos = mPlayer.mPos;//Vector2(mPlayArea.left + mBullet.GetScreenSize().x * 2.f, (mPlayArea.bottom - mPlayArea.top) * 1.3f);
-	mBullets.size() == 100;
-	for (int i = 0; i < 100;)
-	{
-		mBullets[i] = mBullet;
-		i++;
-	}
+	mBullets.push_back(mBullet);
+	mBullets[sprID::mbullet] = mBullet;
+
 }
-/*void PlayMode::InitBullet()
-{
-	ID3D11ShaderResourceView* b = mD3D.GetCache().LoadTexture(&mD3D.GetDevice(), "bullet.dds");
-	mPlayer.SetTex(*b);
-	mPlayer.SetScale(Vector2(3.f, 3.f));
-	int w, h;
-	WinUtil::Get().GetClientExtents(w, h);
-	mPlayArea.left = mPlayer.GetScreenSize().x * 0.6f;
-	mPlayArea.top = mPlayer.GetScreenSize().y * 0.6f;
-	mPlayArea.right = w - mPlayArea.left;
-	mPlayArea.bottom = h * 0.75f;
-	mPlayer.mPos = Vector2(mPlayArea.left + mPlayer.GetScreenSize().x * 2.f, (mPlayArea.bottom - mPlayArea.top) * 1.3f);
-}*/
+
 void StartScreen::Init()
 {
 	MyD3D& d3d = WinUtil::Get().GetD3D();

@@ -12,6 +12,7 @@
 
 
 
+
 class StartScreen
 {
 public:
@@ -42,7 +43,9 @@ public:
 		
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	float getRadius();
+	std::vector<Sprite> mBullets;
 	
+	enum sprID { mbullet, TOTAL = 1 };
 	
 	
 private:
@@ -54,8 +57,7 @@ private:
 	
 	RECTF mPlayArea;
 	std::vector<Sprite> mBgnd; //paralax layers
-	std::vector<Sprite> mBullets;
-	
+
 	void InitBgnd();
 	void InitPlayer();
 	void InitBullet();
