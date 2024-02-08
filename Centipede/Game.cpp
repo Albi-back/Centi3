@@ -233,7 +233,7 @@ void StartScreen::Update(float dTime)
 		spun = true;
 	}
 	
-	counter++;
+	
 	
 	
 

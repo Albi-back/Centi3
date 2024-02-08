@@ -17,7 +17,7 @@ class StartScreen
 {
 public:
 	StartScreen(MyD3D& d3d);
-	int counter = 0;
+	
 	bool spun = false;
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
@@ -66,8 +66,7 @@ private:
 class GameOver
 {
 public:
-	GameOver(MyD3D& d3d);
-	int counter = 0;
+	GameOver(MyD3D& d3d);	
 	void Update(float dTime);
 	void Render(float dTime, DirectX::SpriteBatch& batch);
 	const DirectX::SimpleMath::Vector3 mDefCamPos = DirectX::SimpleMath::Vector3(0, 2, -5);
